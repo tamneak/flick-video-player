@@ -14,7 +14,11 @@ dependencies:
     sdk: flutter
   video_player: ^2.6.1
   provider: ^6.0.5
-  wakelock: ^0.6.2
+  wakelock:
+    git:
+      url: https://github.com/tamneak/wakelock.git
+      ref: main
+      path: wakelock
   universal_html: ^2.2.3
   dio: ^5.1.2
   path_provider: ^2.0.15
