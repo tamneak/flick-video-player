@@ -15,15 +15,13 @@ class FlickVideoPlayer extends StatefulWidget {
     ),
     this.flickVideoWithControlsFullscreen,
     this.systemUIOverlay = SystemUiOverlay.values,
+    this.systemUiMode = SystemUiMode.manual,
     this.systemUIOverlayFullscreen = const [],
     this.preferredDeviceOrientation = const [
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ],
-    this.preferredDeviceOrientationFullscreen = const [
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight
-    ],
+    this.preferredDeviceOrientationFullscreen = const [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
     this.wakelockEnabled = true,
     this.wakelockEnabledFullscreen = true,
     this.webKeyDownHandler = flickDefaultWebKeyDownHandler,
@@ -41,6 +39,7 @@ class FlickVideoPlayer extends StatefulWidget {
   ///
   /// SystemUIOverlay is changed in init.
   final List<SystemUiOverlay> systemUIOverlay;
+  final SystemUiMode systemUiMode;
 
   /// SystemUIOverlay to show in full-screen.
   final List<SystemUiOverlay> systemUIOverlayFullscreen;
@@ -86,8 +85,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
     }
 
     if (kIsWeb) {
-      document.documentElement?.onFullscreenChange
-          .listen(_webFullscreenListener);
+      document.documentElement?.onFullscreenChange.listen(_webFullscreenListener);
       document.documentElement?.onKeyDown.listen(_webKeyListener);
     }
 
@@ -108,8 +106,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
   void listener() async {
     if (flickManager.flickControlManager!.isFullscreen && !_isFullscreen) {
       _switchToFullscreen();
-    } else if (_isFullscreen &&
-        !flickManager.flickControlManager!.isFullscreen) {
+    } else if (_isFullscreen && !flickManager.flickControlManager!.isFullscreen) {
       _exitFullscreen();
     }
   }
@@ -132,8 +129,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
       return Scaffold(
         body: FlickManagerBuilder(
           flickManager: flickManager,
-          child: widget.flickVideoWithControlsFullscreen ??
-              widget.flickVideoWithControls,
+          child: widget.flickVideoWithControlsFullscreen ?? widget.flickVideoWithControls,
         ),
       );
     });
@@ -162,11 +158,9 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
 
   _setPreferredOrientation() {
     // when aspect ratio is less than 1 , video will be played in portrait mode and orientation will not be changed.
-    var aspectRatio =
-        widget.flickManager.flickVideoManager!.videoPlayerValue!.aspectRatio;
+    var aspectRatio = widget.flickManager.flickVideoManager!.videoPlayerValue!.aspectRatio;
     if (_isFullscreen && aspectRatio >= 1) {
-      SystemChrome.setPreferredOrientations(
-          widget.preferredDeviceOrientationFullscreen);
+      SystemChrome.setPreferredOrientations(widget.preferredDeviceOrientationFullscreen);
     } else {
       SystemChrome.setPreferredOrientations(widget.preferredDeviceOrientation);
     }
@@ -174,11 +168,15 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
 
   _setSystemUIOverlays() {
     if (_isFullscreen) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: widget.systemUIOverlayFullscreen);
+      SystemChrome.setEnabledSystemUIMode(
+        widget.systemUiMode,
+        overlays: widget.systemUIOverlayFullscreen,
+      );
     } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: widget.systemUIOverlay);
+      SystemChrome.setEnabledSystemUIMode(
+        widget.systemUiMode,
+        overlays: widget.systemUIOverlay,
+      );
     }
   }
 
@@ -186,8 +184,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
     final isFullscreen = (window.screenTop == 0 && window.screenY == 0);
     if (isFullscreen && !flickManager.flickControlManager!.isFullscreen) {
       flickManager.flickControlManager!.enterFullscreen();
-    } else if (!isFullscreen &&
-        flickManager.flickControlManager!.isFullscreen) {
+    } else if (!isFullscreen && flickManager.flickControlManager!.isFullscreen) {
       flickManager.flickControlManager!.exitFullscreen();
     }
   }
@@ -198,9 +195,8 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    
     return WillPopScope(
-     onWillPop: _overlayEntry != null
+      onWillPop: _overlayEntry != null
           ? () {
               flickManager.flickControlManager!.exitFullscreen();
               return Future.value(false);
